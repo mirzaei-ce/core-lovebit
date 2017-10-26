@@ -1,0 +1,22 @@
+[Unit]
+Description=Lovebit's distributed currency daemon
+After=network.target
+
+[Service]
+User=lovebit
+Group=lovebit
+
+Type=forking
+PIDFile=/var/lib/lovebitd/lovebitd.pid
+ExecStart=/usr/bin/lovebitd -daemon -pid=/var/lib/lovebitd/lovebitd.pid \
+-conf=/etc/lovebit/lovebit.conf -datadir=/var/lib/lovebitd -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,6 @@
+usr/local/bin/lovebit-qt usr/bin
+share/pixmaps/lovebit32.xpm usr/share/pixmaps
+share/pixmaps/lovebit16.xpm usr/share/pixmaps
+share/pixmaps/lovebit128.png usr/share/pixmaps
+debian/lovebit-qt.desktop usr/share/applications
+debian/lovebit-qt.protocol usr/share/kde4/services/

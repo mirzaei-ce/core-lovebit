@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Lovebit
+Comment=Lovebit P2P Cryptocurrency
+Comment[fr]=Lovebit, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Lovebit, eşten eşe kriptografik sanal para birimi
+Exec=lovebit-qt %u
+Terminal=false
+Type=Application
+Icon=lovebit128
+MimeType=x-scheme-handler/lovebit;
+Categories=Office;Finance;

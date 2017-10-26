@@ -1,0 +1,33 @@
+# /etc/conf.d/lovebitd: config file for /etc/init.d/lovebitd
+
+# Config file location
+#LOVEBITD_CONFIGFILE="/etc/lovebit/lovebit.conf"
+
+# What directory to write pidfile to?  (created and owned by $LOVEBITD_USER)
+#LOVEBITD_PIDDIR="/var/run/lovebitd"
+
+# What filename to give the pidfile
+#LOVEBITD_PIDFILE="${LOVEBITD_PIDDIR}/lovebitd.pid"
+
+# Where to write lovebitd data (be mindful that the blockchain is large)
+#LOVEBITD_DATADIR="/var/lib/lovebitd"
+
+# User and group to own lovebitd process
+#LOVEBITD_USER="lovebit"
+#LOVEBITD_GROUP="lovebit"
+
+# Path to lovebitd executable
+#LOVEBITD_BIN="/usr/bin/lovebitd"
+
+# Nice value to run lovebitd under
+#LOVEBITD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+LOVEBITD_OPTS="-disablewallet"
+
+# The timeout in seconds OpenRC will wait for lovebitd to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+LOVEBITD_SIGTERM_TIMEOUT=60

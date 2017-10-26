@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/lovebit/.lovebit" ]; then
+	LOVEBITD_DEFAULT_DATADIR="/var/lib/lovebit/.lovebit"
+else
+	LOVEBITD_DEFAULT_DATADIR="/var/lib/lovebitd"
+fi
+
+LOVEBITD_CONFIGFILE=${LOVEBITD_CONFIGFILE:-/etc/lovebit/lovebit.conf}
+LOVEBITD_PIDDIR=${LOVEBITD_PIDDIR:-/var/run/lovebitd}
+LOVEBITD_PIDFILE=${LOVEBITD_PIDFILE:-${LOVEBITD_PIDDIR}/lovebitd.pid}
+LOVEBITD_DATADIR=${LOVEBITD_DATADIR:-${LOVEBITD_DEFAULT_DATADIR}}
+LOVEBITD_USER=${LOVEBITD_USER:-${LOVEBIT_USER:-lovebit}}
+LOVEBITD_GROUP=${LOVEBITD_GROUP:-lovebit}
+LOVEBITD_BIN=${LOVEBITD_BIN:-/usr/bin/lovebitd}
+LOVEBITD_NICE=${LOVEBITD_NICE:-${NICELEVEL:-0}}
+LOVEBITD_OPTS="${LOVEBITD_OPTS:-${LOVEBIT_OPTS}}"
+
+name="Lovebit Core Daemon"
+description="Lovebit cryptocurrency P2P network daemon"
+
+command="/usr/bin/lovebitd"
+command_args="-pid=\"${LOVEBITD_PIDFILE}\" \
+		-conf=\"${LOVEBITD_CONFIGFILE}\" \
+		-datadir=\"${LOVEBITD_DATADIR}\" \
+		-daemon \
+		${LOVEBITD_OPTS}"
+
+required_files="${LOVEBITD_CONFIGFILE}"
+start_stop_daemon_args="-u ${LOVEBITD_USER} \
+			-N ${LOVEBITD_NICE} -w 2000"
+pidfile="${LOVEBITD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${LOVEBITD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${LOVEBITD_USER}:${LOVEBITD_GROUP}" \
+	"${LOVEBITD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${LOVEBITD_USER}:${LOVEBITD_GROUP}" \
+	"${LOVEBITD_PIDDIR}"
+
+	checkpath -f \
+	-o ${LOVEBITD_USER}:${LOVEBITD_GROUP} \
+	-m 0660 \
+	${LOVEBITD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${LOVEBITD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run lovebitd."
+		eerror "The setting must appear in ${LOVEBITD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Lovebit Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

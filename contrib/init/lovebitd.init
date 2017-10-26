@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+#  lovebitd The lovebit core server.
+#
+#
+# chkconfig: 345 80 20
+# description: lovebitd
+# processname: lovebitd
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+# you can override defaults in /etc/sysconfig/lovebitd, see below
+if [ -f /etc/sysconfig/lovebitd ]; then
+        . /etc/sysconfig/lovebitd
+fi
+
+RETVAL=0
+
+prog=lovebitd
+# you can override the lockfile via LOVEBITD_LOCKFILE in /etc/sysconfig/lovebitd
+lockfile=${LOVEBITD_LOCKFILE-/var/lock/subsys/lovebitd}
+
+# lovebitd defaults to /usr/bin/lovebitd, override with LOVEBITD_BIN
+lovebitd=${LOVEBITD_BIN-/usr/bin/lovebitd}
+
+# lovebitd opts default to -disablewallet, override with LOVEBITD_OPTS
+lovebitd_opts=${LOVEBITD_OPTS--disablewallet}
+
+start() {
+    echo -n $"Starting $prog: "
+    daemon $DAEMONOPTS $lovebitd $lovebitd_opts
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killproc $prog
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $lockfile
+    return $RETVAL
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status $prog
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: service $prog {start|stop|status|restart}"
+        exit 1
+        ;;
+esac
